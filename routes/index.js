@@ -9,6 +9,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/loginapp');
 router.use(passport.initialize());
 router.use(passport.session());
 router.use(flash());
+
+var sess;
 /*
 router.use(cookieParser());
 router.use(bodyParser.urlencoded({ extended: false }))
@@ -24,22 +26,37 @@ router.use(session({
 require('../modules/passport')(passport);
 /* GET home page. */
 router.get('/', function(req, res, next) {
+  sess=req.session;
+  if(!sess.email)
   res.render('index', { title: 'Express' });
+  else
+    res.redirect('/profile');
   
 });
 router.get('/login', function(req, res, next) {
-  console.log("Hello: ");
-  res.render('login', { message: req.flash('message') });
-  
+  sess=req.session;
+  if(!sess.email)
+    res.render('login', { message: req.flash('message') });
+  else
+    res.redirect('/profile');
 });
 router.get('/signup', function(req, res, next) {
-
-  res.render('signup', { message:req.flash('message')});
+  sess=req.session;
+  if(!sess.email)
+   res.render('signup', { message:req.flash('message')});
+  else
+    res.redirect('/profile');
 
 });
 router.get('/profile', function(req, res, next) {
-  var x=req.flash('message');
-  res.render('profile', {email:x[0],id:x[1]});
+  sess=req.session;
+  if(!sess.email)
+      res.redirect('/');
+  else
+  {
+    var x=req.flash('message');
+    res.render('profile', {email:sess.email,id:sess.id});
+  }
 });
 
 router.post('/login',
@@ -51,7 +68,12 @@ router.post('/login',
 );
 
 router.get('/logout',function(req,res,next){
-	req.logout();
-	res.redirect('/');
+	req.session.destroy(function(err) {
+  if(err) {
+    console.log(err);
+  } else {
+    res.redirect('/');
+  }
+});
 });
 module.exports = router;

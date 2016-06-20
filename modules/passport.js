@@ -1,6 +1,5 @@
 var LocalStrategy   = require('passport-local').Strategy;
 var  User=require('../modules/user');
-
 module.exports=function(passport){
 	passport.serializeUser(function(user,done){
 		done(null,user);
@@ -9,7 +8,6 @@ module.exports=function(passport){
 		done(null,user);
 	});
 	passport.use('local',new LocalStrategy({
-		
 		passReqToCallback:true
 	},function(req,username,password,done) {
 		console.log(req+" : "+username+" : "+password+" : "+done);
@@ -29,6 +27,9 @@ module.exports=function(passport){
 				if(user.password!=password){
 					return done(null,false,req.flash('message','wrong password'));
 				}
+				sess=req.session;
+				sess.email=user.email;
+				sess.id=user._id;
 				return done(null,user,req.flash('message',[user.email,user._id]));
 			});
 		});

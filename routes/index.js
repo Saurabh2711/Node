@@ -28,7 +28,7 @@ router.get('/', function(req, res, next) {
   
 });
 router.get('/login', function(req, res, next) {
-  console.log("Hello: "+req.flash('message'));
+  console.log("Hello: ");
   res.render('login', { message: req.flash('message') });
   
 });
@@ -38,13 +38,15 @@ router.get('/signup', function(req, res, next) {
 
 });
 router.get('/profile', function(req, res, next) {
-  res.render('profile', { name: req.flash('message')});
+  var x=req.flash('message');
+  res.render('profile', {email:x[0],id:x[1]});
 });
 
 router.post('/login',
   passport.authenticate('local', {
     successRedirect: '/profile',
-    failureRedirect: '/login'
+    failureRedirect: '/login',
+    failureFlash:true
   })
 );
 

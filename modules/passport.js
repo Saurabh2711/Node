@@ -8,10 +8,14 @@ module.exports=function(passport){
 	passport.deserializeUser(function(user,done){
 		done(null,user);
 	});
-	passport.use(new LocalStrategy(function(username,password,done) {
+	passport.use('local',new LocalStrategy({
+		
+		passReqToCallback:true
+	},function(req,username,password,done) {
+		console.log(req+" : "+username+" : "+password+" : "+done);
 		process.nextTick(function() {
 			console.log("LocalStrategy called");
-			console.log(username+" : "+password+" : "+done);
+			
 			User.findOne({
 				'email':username,
 			},function(err,user){
@@ -20,12 +24,12 @@ module.exports=function(passport){
 					return done(err);
 				}
 				if(!user){
-					return done(null,false,{message:'username not found'});
+					return done(null,false,req.flash('message','Username not found'));
 				}
 				if(user.password!=password){
-					return done(null,false,{message:'wrong password'});
+					return done(null,false,req.flash('message','wrong password'));
 				}
-				return done(null,user);
+				return done(null,user,req.flash('message',[user.email,user._id]));
 			});
 		});
 	}));
